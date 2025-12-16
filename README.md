@@ -110,9 +110,9 @@ We eliminate ALL external supervision by using inversion as an intrinsic signal.
 ```bibtex
 @misc{inversion-self-improvement-2025,
   title={Self-Improvement via Inversion: Training Language Models Without External Supervision},
-  author={[Your Name]},
+  author={Adam Kruger},
   year={2025},
-  url={https://github.com/[your-username]/inversion-self-improvement}
+  url={https://github.com/CINOAdam/inversion-self-improvement}
 }
 ```
 
