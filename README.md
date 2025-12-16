@@ -14,14 +14,17 @@ Score:    similarity(original, reconstructed) = 0.95
 
 High reconstruction fidelity = the model understood what it generated = good output.
 
-## Results
+## Results (10 Cycles)
 
 | Metric | Before | After | Improvement |
 |--------|--------|-------|-------------|
-| Intrinsic Score | 0.530 | 0.624 | +17.9% |
-| Acceptance Rate | 36.7% | 52.2% | +15.6pp |
+| Intrinsic Score | 0.531 | 0.627 | **+18.1%** |
+| Acceptance Rate | 60.7% | 88.0% | **+27.3pp** |
+| Training Loss | 5.70 | 4.73 | **-17%** |
 
 **Zero human labels. Zero external reward models. Pure self-improvement.**
+
+📊 [Full results breakdown](RESULTS.md)
 
 ## How It Works
 
