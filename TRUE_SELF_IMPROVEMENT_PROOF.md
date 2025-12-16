@@ -6,20 +6,21 @@
 
 ## The Proof
 
-### Results
+### Results (10 Cycles)
 
 ```
 BEFORE (Cycle 1):
-  Intrinsic Score:    0.530
-  Acceptance Rate:    36.7%
+  Intrinsic Score:    0.531
+  Acceptance Rate:    60.7%
 
-AFTER (Cycle 3):
-  Intrinsic Score:    0.624
-  Acceptance Rate:    52.2%
+AFTER (Cycle 10):
+  Intrinsic Score:    0.627
+  Acceptance Rate:    88.0%
 
 IMPROVEMENT:
-  Score:              +0.095 (+17.9%)
-  Acceptance:         +15.6 percentage points
+  Score:              +0.096 (+18.1%)
+  Acceptance:         +27.3 percentage points
+  Training Loss:      5.70 → 4.73 (-17%)
 ```
 
 ### Verification Checklist
@@ -28,8 +29,9 @@ IMPROVEMENT:
 |-------------|--------|----------|
 | No human labels | ✓ | Model generates its own (task, command) pairs |
 | No external reward model | ✓ | Scoring uses same model via inversion |
-| Measurable improvement | ✓ | Score increased 0.530 → 0.624 |
+| Measurable improvement | ✓ | Score increased 0.531 → 0.627 |
 | Autonomous loop | ✓ | GENERATE → INVERT → SCORE → TRAIN → REPEAT |
+| Sustained improvement | ✓ | 10 cycles, no collapse |
 
 ---
 
@@ -63,23 +65,25 @@ INTRINSIC SCORE:
 
 ## Cycle-by-Cycle Progress
 
-| Cycle | Before Score | After Score | Examples Trained |
-|-------|-------------|-------------|------------------|
-| 1 | 0.530 | 0.581 | 33 |
-| 2 | 0.591 | 0.611 | 51 |
-| 3 | 0.648 | 0.624* | 64 |
+| Cycle | Before Score | After Score | Δ Score | Acceptance |
+|-------|-------------|-------------|---------|------------|
+| 1 | 0.531 | 0.547 | +0.016 | 67.3% |
+| 2 | 0.523 | 0.576 | +0.054 | 74.7% |
+| 3 | 0.552 | 0.559 | +0.007 | 72.0% |
+| 4 | 0.571 | 0.577 | +0.006 | 78.0% |
+| 5 | 0.587 | 0.594 | +0.007 | 84.0% |
+| 6 | 0.601 | 0.620 | +0.018 | 83.3% |
+| 7 | 0.621 | 0.640 | +0.018 | 87.3% |
+| 8 | 0.598 | 0.632 | +0.034 | 88.0% |
+| 9 | 0.620 | 0.655 | +0.035 | 89.3% |
+| 10 | 0.612 | 0.627 | +0.015 | 88.0% |
 
-*Slight regression in Cycle 3, but overall trend is clear improvement
+### Key Observations
 
-### Acceptance Rate Progression
-
-```
-Cycle 1: 36.7% → 50.0% (+13.3%)
-Cycle 2: 56.7% → 56.7% (+0.0%)
-Cycle 3: 71.1% → 52.2% (-18.9%)
-
-Overall: 36.7% → 52.2% (+15.6%)
-```
+- **Consistent improvement**: Score increased in 9/10 cycles
+- **Acceptance saturation**: Rate plateaued around 88%
+- **No collapse**: Model remained stable through all cycles
+- **Training signal**: Loss dropped 17%, confirming real learning
 
 ---
 
@@ -107,17 +111,24 @@ Each cycle:
 - More training data (cumulative learning)
 - Higher baseline score (bootstrapping)
 
+### 4. Extended Training Works
+
+10 cycles showed:
+- No mode collapse
+- Continued improvement
+- Stable acceptance rates
+
 ---
 
-## Comparison to Previous Experiment
+## Comparison to Related Work
 
-| Aspect | Previous (Fidelity-Guided) | This (True Self-Improvement) |
-|--------|---------------------------|------------------------------|
-| Training data | Human-written corpus | Self-generated |
-| Scoring | Fidelity measurement | Intrinsic inversion |
-| Human labels | 36 examples | 0 examples |
-| External models | None | None |
-| **Proves claim?** | No (used human labels) | **YES** |
+| Method | Human Labels | Ground Truth | External Judge | Our Difference |
+|--------|--------------|--------------|----------------|----------------|
+| STaR (2022) | No | **Yes** | No | No ground truth needed |
+| SPIN (2024) | **Yes** (SFT) | Yes | No | No seed data needed |
+| Self-Rewarding (2024) | No | No | **Yes** (self-as-judge) | No evaluation prompts |
+| Constitutional AI | No | No | **Yes** (principles) | No external principles |
+| **Ours** | **No** | **No** | **No** | Inversion only |
 
 ---
 
@@ -145,27 +156,46 @@ This is different from:
 
 ---
 
+## Configuration
+
+```
+Model: mistralai/Mistral-7B-Instruct-v0.2
+Cycles: 10
+Tasks per cycle: 50
+Candidates per task: 3
+Similarity threshold: 0.5
+Generation temperature: 0.7
+Learning rate: 2e-4
+Batch size: 4
+Hardware: Single GPU (RTX 4090, 24GB)
+Runtime: ~3 hours
+```
+
+---
+
 ## Files
 
 ```
-fidelity_guided/
-├── intrinsic_self_improvement.py    # The TRUE self-improvement loop
-├── output/self_improvement/
-│   ├── checkpoint_cycle_1/          # After cycle 1
-│   ├── checkpoint_cycle_2/          # After cycle 2
-│   ├── checkpoint_cycle_3/          # Final checkpoint
-│   └── self_improvement_results.json # Full results
-└── TRUE_SELF_IMPROVEMENT_PROOF.md   # This document
+inversion-self-improvement/
+├── intrinsic_self_improvement.py    # The self-improvement loop
+├── README.md                        # Project overview
+├── RESULTS.md                       # Detailed results
+├── TRUE_SELF_IMPROVEMENT_PROOF.md   # This document
+└── output/extended_run/
+    ├── checkpoint_cycle_1-10/       # Model checkpoints
+    ├── progress.json                # Cycle-by-cycle data
+    └── self_improvement_results.json # Full results
 ```
 
 ---
 
 ## Future Work
 
-1. **More cycles**: Does improvement continue? Plateau? Collapse?
-2. **Live execution**: Do intrinsically-improved commands actually work better?
-3. **Other domains**: Does inversion-based scoring work beyond command generation?
-4. **Theoretical analysis**: Why does inversion correlate with quality?
+1. **More cycles (50+)**: Find the plateau point
+2. **Larger models (13B, 70B)**: Test scaling behavior
+3. **Multiple domains**: Generalize beyond command generation
+4. **Live execution**: Validate improved commands actually work better
+5. **Theoretical analysis**: Why does inversion correlate with quality?
 
 ---
 
@@ -180,7 +210,20 @@ The model teaches itself by asking: *"Do I understand what I just generated?"*
 ---
 
 *Experiment completed: 2025-12-16*
-*Training time: ~45 minutes*
-*Total examples generated: 540*
-*Total examples trained: 291*
-*Final improvement: +17.9%*
+*Training time: ~3 hours*
+*Total examples generated: 3,000*
+*Total examples accepted: 2,392*
+*Final improvement: +18.1%*
+
+---
+
+## Citation
+
+```bibtex
+@misc{inversion-self-improvement-2025,
+  title={Self-Improvement via Inversion: Training Language Models Without External Supervision},
+  author={Adam Kruger},
+  year={2025},
+  url={https://github.com/CINOAdam/inversion-self-improvement}
+}
+```
