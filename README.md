@@ -108,6 +108,46 @@ output/
 
 We eliminate ALL external supervision by using inversion as an intrinsic signal.
 
+## Limitations & Follow-Up Research
+
+While the intrinsic metrics show improvement, follow-up research revealed critical limitations:
+
+### The Probing vs Reality Gap
+
+In a [security agent extension](https://github.com/CINOAdam/sipit-security-agent), we tested whether self-improvement translates to real-world task performance:
+
+| Test Type | Result |
+|-----------|--------|
+| Probing (controlled) | 100% skill differentiation |
+| Real deployment | 20% skill differentiation |
+| **Trust Score** | **0.2 (Low)** |
+
+**Key finding:** Models can show improvement on narrow metrics while failing in deployment. The model learned superficial patterns (skill label → tool token) without deeper behavioral understanding.
+
+### What This Means
+
+1. **Pattern matching ≠ Reasoning** — Inversion fidelity measures reconstruction, not understanding
+2. **Intrinsic metrics can mislead** — High scores on self-generated tests don't guarantee real-world performance
+3. **Scale matters** — Small training sets (50-100 examples) produce fragile patterns
+4. **Diversity is critical** — Self-improvement loops can collapse to repetitive behavior
+
+### The Trust Diagnostic
+
+This led us to develop a **behavioral consistency framework**:
+
+```python
+trust_score = similarity(probe_result, actual_behavior)
+# High = reliable, Low = "talks the talk but doesn't walk the walk"
+```
+
+See the full analysis: [sipit-security-agent](https://github.com/CINOAdam/sipit-security-agent)
+
+### Open Questions
+
+- Can larger scale (1000s of examples) overcome the pattern matching limitation?
+- Would RL-based reward signals produce more robust improvement?
+- Is there a phase transition from pattern matching to genuine reasoning?
+
 ## Citation
 
 ```bibtex
